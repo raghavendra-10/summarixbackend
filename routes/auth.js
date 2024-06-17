@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
     user = new User({ email, verificationCode, password: 'placeholder' });
     await user.save();
     await sendVerificationEmail(email, verificationCode);
-    res.status(201).json({ msg: 'Verification email sent' });
+    res.status(200).json({ msg: 'Verification email sent' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

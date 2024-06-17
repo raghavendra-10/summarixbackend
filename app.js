@@ -41,6 +41,8 @@ app.get('/api/protected-route', passport.authenticate('jwt', { session: false })
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const HOST = '192.168.29.51'; // Change this to your server's IP address if needed
+
+app.listen(PORT, HOST, () => {
+  console.log(`Server is running on http://${HOST}:${PORT}`);
 });
