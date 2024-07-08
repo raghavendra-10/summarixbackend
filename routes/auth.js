@@ -4,9 +4,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const sendVerificationEmail = require('../mailer');
 const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid');
 
 // Registration route
+const generateOTP = () => {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+};
 router.post('/register', async (req, res) => {
   const { email } = req.body;
   try {
@@ -14,7 +17,7 @@ router.post('/register', async (req, res) => {
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
-    const verificationCode = uuidv4();
+    const verificationCode = generateOTP();
     user = new User({ email, verificationCode, password: 'placeholder' });
     await user.save();
     await sendVerificationEmail(email, verificationCode);
