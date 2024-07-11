@@ -3,13 +3,17 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const sendVerificationEmail = require('../mailer');
+const { OAuth2Client } = require('google-auth-library');
 const router = express.Router();
-// const { v4: uuidv4 } = require('uuid');
 
-// Registration route
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Helper function to generate OTP
 const generateOTP = () => {
   return Math.floor(1000 + Math.random() * 9000).toString();
 };
+
+// Registration route
 router.post('/register', async (req, res) => {
   const { email } = req.body;
   try {
@@ -71,6 +75,33 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Google Sign-In route
+router.post('/google/callback', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { email, sub: googleId } = ticket.getPayload();
+
+    let user = await User.findOne({ googleId });
+    if (!user) {
+      user = new User({ email, googleId, isVerified: true });
+      await user.save();
+    }
+
+    const jwtToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+
+    res.json({ token: jwtToken });
+  } catch (error) {
+    console.error(error);
     res.status(500).send('Server error');
   }
 });
