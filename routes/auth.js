@@ -1,7 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {User,Audio} = require('../models/user');
+const User = require('../models/user');
+const Audio = require('../models/audio');
 const sendVerificationEmail = require('../mailer');
 const { OAuth2Client } = require('google-auth-library');
 const router = express.Router();
@@ -71,7 +72,9 @@ router.post('/login', async (req, res) => {
     const payload = { id: user.id, email: user.email };
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
       if (err) throw err;
-      res.json({ token });
+      req.session.userId = user._id;
+      console.log("Userid:",req.session.userId);
+      res.json({ token:token,userid: user._id });
     });
   } catch (err) {
     console.error(err.message);
@@ -107,40 +110,40 @@ router.post('/google/callback', async (req, res) => {
 });
 
 // Audio URL route
-router.post('/audiourl', async (req, res) => {
-  const { url, userid } = req.body;
-  try {
-    const user = await User.findById(userid);
-    if (!user) {
-      return res.status(400).json({ msg: 'User not found' });
-    }
+// router.post('/audiourl', async (req, res) => {
+//   const { url, userid } = req.body;
+//   try {
+//     const user = await User.findById(userid);
+//     if (!user) {
+//       return res.status(400).json({ msg: 'User not found' });
+//     }
 
-    const newAudio = new Audio({
-      userId: user._id,
-      audioUrl: url,
-      uploadedDate: new Date()
-    });
+//     const newAudio = new Audio({
+//       userId: user._id,
+//       audioUrl: url,
+//       uploadedDate: new Date()
+//     });
 
-    await newAudio.save();
-    res.status(200).json({ msg: 'Audio URL saved successfully' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+//     await newAudio.save();
+//     res.status(200).json({ msg: 'Audio URL saved successfully' });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
 
-router.get('/audiourl/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const audioRecords = await Audio.find({ userId: id });
-    if (audioRecords.length === 0) {
-      return res.status(404).json({ msg: 'No audio records found for this user' });
-    }
-    res.status(200).json(audioRecords);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+// router.get('/audiourl/:id', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const audioRecords = await Audio.find({ userId: id });
+//     if (audioRecords.length === 0) {
+//       return res.status(404).json({ msg: 'No audio records found for this user' });
+//     }
+//     res.status(200).json(audioRecords);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
 
 module.exports = router;

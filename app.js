@@ -8,14 +8,22 @@ const { ExtractJwt, Strategy: JwtStrategy } = passportJWT;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const jwt = require('jsonwebtoken');
 const User = require('./models/user'); // Ensure the path is correct for your project structure
-
+const session = require('express-session');
 const app = express();
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize()); // Initialize passport before routes
+const authRoutes = require('./routes/auth');
+const audioRoutes = require('./routes/audioroute')
 
+app.use(session({
+  secret: 'SecretKey', // Replace with a secure key
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true if using https
+}));
 // Passport JWT configuration
 passport.use(
   new JwtStrategy(
@@ -88,9 +96,9 @@ app.get(
 );
 
 // Use additional auth routes from a separate file
-const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
 
+app.use('/api/auth', authRoutes);
+app.use('/audio', audioRoutes);
 // Protected route example
 app.get('/api/protected-route', passport.authenticate('jwt', { session: false }), (req, res) => {
   res.json({ msg: 'You have accessed a protected route!', user: req.user });
