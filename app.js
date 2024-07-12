@@ -112,7 +112,8 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 8001;
-const HOST = '0.0.0.0'; // Allow connections from any IP address
+const HOST = '0.0.0.0';
+// const HOST = '10.50.91.174'; // Allow connections from any IP address
 
 app.listen(PORT, HOST, () => {
   console.log(`Server is running on http://${HOST}:${PORT}`);
