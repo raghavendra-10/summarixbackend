@@ -2,7 +2,8 @@ const express = require('express');
 const User = require('../models/user');
 const Audio = require('../models/audio');
 const audiorouter = express.Router();
-audiorouter.post('/audiourl', async (req, res) => {
+const jwtauth = require('../middlewares/jwtauth');
+audiorouter.post('/audiourl',jwtauth, async (req, res) => {
     const { url, userid } = req.body;
     try {
       const user = await User.findById(userid);
@@ -24,7 +25,7 @@ audiorouter.post('/audiourl', async (req, res) => {
     }
   });
   
-  audiorouter.get('/audiourl/:id', async (req, res) => {
+  audiorouter.get('/audiourl/:id', jwtauth ,async (req, res) => {
     const { id } = req.params;
     try {
       const audioRecords = await Audio.find({ userId: id });
