@@ -17,9 +17,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Update user profile including profile picture URL
-userrouter.put('/userprofile', jwtauth, async (req, res) => {
+userrouter.put('/userprofile/:id', jwtauth, async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const userId = req.params.id;
     const { username, gender, dob, phnnum, profilepic } = req.body;
 
     console.log('User ID:', userId);
@@ -51,9 +51,9 @@ userrouter.put('/userprofile', jwtauth, async (req, res) => {
 });
 
 // Fetch user profile
-userrouter.get('/userprofile', jwtauth, async (req, res) => {
+userrouter.get('/userprofile/:id', jwtauth, async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const userId = req.params.id;
 
     console.log('Fetching profile for user ID:', userId);
 
