@@ -1,57 +1,73 @@
 const express = require('express');
 const User = require('../models/user');
+const multer = require('multer');
 const userrouter = express.Router();
 const jwtauth = require('../middlewares/jwtauth');
-// Update user details
+
+// Multer setup for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/profile'); // Directory where uploaded files will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Unique filename
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// Update user profile including profile picture URL
 userrouter.put('/userprofile', jwtauth, async (req, res) => {
-    try {
-      // Get user ID from the authenticated token
-      const userId = req.session.userId;
-  
-      // Data to be updated
-      const {profilepic, phnnum, username, gender, dob } = req.body;
-  
-      // Find the user by ID and update the details
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        {
-          $set: {
-            profilepic,
-            phnnum,
-            username,
-            gender,
-            dob
-          }
-        },
-        { new: true, runValidators: true }
-      );
-  
-      if (!updatedUser) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      res.json({ message: 'User details updated successfully', user: updatedUser });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error: error.message });
+  try {
+    const userId = req.session.userId;
+    const { username, gender, dob, phnnum, profilepic } = req.body;
+
+    console.log('User ID:', userId);
+    console.log('Profile update data:', req.body);
+
+    const updateData = {
+      username,
+      gender,
+      dob,
+      phnnum,
+      profilepic
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  });
-  
+
+    res.json({ message: 'User details updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Error updating user profile:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Fetch user profile
 userrouter.get('/userprofile', jwtauth, async (req, res) => {
-try {
-    // Get user ID from the authenticated token
+  try {
     const userId = req.session.userId;
 
-    // Find the user by ID
+    console.log('Fetching profile for user ID:', userId);
+
     const user = await User.findById(userId);
 
     if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Return the user details
     res.json(user);
-} catch (error) {
+  } catch (error) {
+    console.error('Error fetching user profile:', error.message);
     res.status(500).json({ message: 'Server error', error: error.message });
-}
+  }
 });
+
 module.exports = userrouter;
