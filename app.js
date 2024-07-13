@@ -16,8 +16,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize()); // Initialize passport before routes
 const authRoutes = require('./routes/auth');
-const audioRoutes = require('./routes/audioroute')
-
+const audioRoutes = require('./routes/audioroute');
+const userRoutes = require('./routes/userprofile');
 app.use(session({
   secret: 'SecretKey', // Replace with a secure key
   resave: false,
@@ -99,6 +99,7 @@ app.get(
 
 app.use('/api/auth', authRoutes);
 app.use('/audio', audioRoutes);
+app.use('/',userRoutes);
 // Protected route example
 app.get('/api/protected-route', passport.authenticate('jwt', { session: false }), (req, res) => {
   res.json({ msg: 'You have accessed a protected route!', user: req.user });
