@@ -42,4 +42,18 @@ audiorouter.post('/audiourl',jwtauth, async (req, res) => {
       res.status(500).send('Server error');
     }
   });
+  audiorouter.delete('/audiourl/:id',jwtauth,async (req,res)=>{
+    const {id}=req.params;
+    try{
+      const audio=await Audio.findByIdAndDelete(id);
+      if(!audio){
+        return res.status(404).json({msg:'Audio not found'});
+      }
+      res.status(200).json({msg:'Audio deleted successfully'});
+      }
+      catch(err){
+        console.error(err.message);
+        res.status(500).send('Server error');
+      }
+  })
   module.exports = audiorouter;  
