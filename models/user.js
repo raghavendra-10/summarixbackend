@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     }
   },
   username: { type: String, required: false }, // Username, could be required depending on application logic
-  gender: { type: String, required: false, enum: ['Male', 'Female', 'Other'] }, // Gender with possible values
+  gender: { type: String, required: false }, // Gender with possible values
   dob: { type: Date, required: false } // Date of birth
 });
 
