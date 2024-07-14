@@ -4,7 +4,7 @@ const Audio = require('../models/audio');
 const audiorouter = express.Router();
 const jwtauth = require('../middlewares/jwtauth');
 audiorouter.post('/audiourl',jwtauth, async (req, res) => {
-    const { url, userid, transcripts , speakers,highlights } = req.body;
+    const { url, userid, transcripts , speakers,highlights,summary } = req.body;
     try {
       const user = await User.findById(userid);
       if (!user) {
@@ -17,6 +17,7 @@ audiorouter.post('/audiourl',jwtauth, async (req, res) => {
         transcripts:transcripts,
         speakers:speakers,
         highlights:highlights,
+        summary:summary,
         uploadedDate: new Date()
       });
   

@@ -22,6 +22,10 @@ const audioSchema = new mongoose.Schema({
     type: Object,
     required: false
   },
+  summary:{
+    type: String, 
+    required: true
+  },
   uploadedDate: { 
     type: Date, 
     default: Date.now 
