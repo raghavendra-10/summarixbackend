@@ -12,7 +12,7 @@ audiorouter.post('/audiourl',jwtauth, async (req, res) => {
       }
   
       const newAudio = new Audio({
-        userId: user._id,
+        userId: userid,
         audioUrl: url,
         transcripts:transcripts,
         speakers:speakers,
